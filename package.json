@@ -1,0 +1,47 @@
+{
+  "name": "hive-core",
+  "version": "0.6.0",
+  "description": "The hive.js server core",
+  "main": "index.js",
+  "dependencies": {
+    "through2": "2.x",
+    "mux-dmx": "0.0.x",
+    "duplexify": "3.x",
+    "nconf":"0.8.x",
+    "co": "4.x",
+    "koa": "0.21.x",
+    "koa-router": "5.x",
+    "koa-cash": "1.x",
+    "koa-conditional-get": "1.x",
+    "koa-etag": "2.x",
+    "koa-body": "1.x",
+    "mime-match": "1.x",
+    "log4js": "0.6.x",
+    "waterline": "0.10.x",
+    "queue": "3.x",
+    "umbilical": "*",
+    "obj-to-argv": "*",
+    "yargs": "3.x",
+    "gulf": "3.x"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hivejs/hive-core.git"
+  },
+  "keywords": [
+    "hive",
+    "hive.js",
+    "collaborate",
+    "etherpad",
+    "editor"
+  ],
+  "author": "Marcel Klehr <mklehr@gmx.net>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/hivejs/hive-core/issues"
+  },
+  "homepage": "https://github.com/hivejs/hive-core#readme"
+}
