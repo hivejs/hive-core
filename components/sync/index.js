@@ -20,40 +20,20 @@ var gulf = require('gulf')
   , WaterlineAdapter = require('./lib/waterline-adapter')
 
 module.exports = setup
-module.exports.consumes = ['hooks', 'ot', 'queue', 'broadcast']
+module.exports.consumes = ['orm', 'ot', 'queue', 'broadcast']
 module.exports.provides = ['sync']
 
 function setup(plugin, imports, register) {
-  var hooks = imports.hooks
+  var orm = imports.orm
     , ot = imports.ot
     , queue = imports.queue
     , broadcast = imports.broadcast
 
-  var sync = { getDocument: function*(){throw new Error('Models are not loaded yet')}
-              , createDocument: function*(){throw new Error('Models are not loaded yet')}
-              , documents: {}
-              }
-
-  hooks.on('orm:initialized', function*(models){
-
-    var Document = models.document
-      , Snapshot = models.snapshot
-      , User = models.user
-
-    sync.getDocument = function*(docId) {
-      if(this.documents[docId]) return this.documents[docId]
-      var doc = yield Document.findOne({id: docId})
-        , ottype = ot.getOTType(doc.type)
-      var document = gulf.Document.load(new WaterlineAdapter(docId, models), ottype
-      , function(er){
-        if(er) throw er
-      })
-      this.documents[docId] = document
-      wireDocument(docId, document)
-      return document
-    }
-
-    sync.createDocument = function*(type) {
+  var sync = {
+    getDocument: function*(){throw new Error('Models are not loaded yet')}
+  , createDocument: function*(){throw new Error('Models are not loaded yet')}
+  , documents: {}
+  , createDocument: function*(type) {
       var ottype = ot.getOTType(type)
       if(!ottype) throw new Error('Specified document type is not available')
 
@@ -65,11 +45,23 @@ function setup(plugin, imports, register) {
       wireDocument(adapter.documentId, doc)
       this.documents[adapter.documentId] = doc
 
-      yield Document.update({id: adapter.documentId}, {type: type})
+      yield orm.collections.document.update({id: adapter.documentId}, {type: type})
 
       return yield Document.findOne({id: adapter.documentId})
     }
-  })
+  , getDocument: function*(docId) {
+      if(this.documents[docId]) return this.documents[docId]
+      var doc = yield orm.collections.document.findOne({id: docId})
+        , ottype = ot.getOTType(doc.type)
+      var document = gulf.Document.load(new WaterlineAdapter(docId, orm.collections), ottype
+      , function(er){
+        if(er) throw er
+      })
+      this.documents[docId] = document
+      wireDocument(docId, document)
+      return document
+    }
+  }
 
   function wireDocument(docId, doc) {
     // Use worker queue
