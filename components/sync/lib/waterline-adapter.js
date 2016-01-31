@@ -18,49 +18,75 @@
 module.exports = Adapter
 
 
-function Adapter(documentId, models) {
-  this.documentId = documentId
+function Adapter(models) {
   this.Document = models.document
   this.Snapshot = models.snapshot
 }
 
 Adapter.prototype.createDocument = function(initialSnapshot, cb) {
-  var document = this.Document.create(
+  this.Document.create(
   { firstSnapshot: initialSnapshot.id
   , latestSnapshot: initialSnapshot.id
   }, function(er, document) {
     if(er) return cb(er)
-    this.documentId = document.id
-    this.storeSnapshot(initialSnapshot, cb)
-  }.bind(this))
-}
-
-Adapter.prototype.getFirstSnapshot = function(cb) {
-  this.Document.findOne({id: this.documentId}, function(er, doc) {
-    if(er) return cb(er)
-    this.Snapshot.findOne({document: this.documentId, id: doc.firstSnapshot}, function(er, snapshot) {
+    this.storeSnapshot(initialSnapshot, function(er) {
       if(er) return cb(er)
-      cb(null, {changes: snapshot.changes, parent: snapshot.parent, id: snapshot.id, contents: snapshot.contents})
+      cb(null, document.id)
     })
   }.bind(this))
 }
 
-Adapter.prototype.getLatestSnapshot = function(cb) {
-  this.Document.findOne({id: this.documentId}, function(er, doc) {
+Adapter.prototype.getFirstSnapshot = function(docId, cb) {
+  this.Document.findOne({id: docId}, function(er, doc) {
+    if(er) return cb(er)
+    this.Snapshot.findOne({
+      document: docId
+    , id: doc.firstSnapshot
+    }, function(er, snapshot) {
+      if(er) return cb(er)
+      cb(null, {
+        changes: snapshot.changes
+      , parent: snapshot.parent
+      , id: snapshot.id
+      , contents: snapshot.contents
+      , author: snapshot.author
+      })
+    })
+  }.bind(this))
+}
+
+Adapter.prototype.getLatestSnapshot = function(docId, cb) {
+  this.Document.findOne({id: docId}, function(er, doc) {
     if(er) return cb(er)
     if(!doc) return cb(new Error('Document '+this.documentId+' not found'))
-    this.Snapshot.findOne({document: this.documentId, id: doc.latestSnapshot}, function(er, snapshot) {
+    this.Snapshot.findOne({
+      document: docId
+    , id: doc.latestSnapshot
+    }, function(er, snapshot) {
       if(er) return cb(er)
-      cb(null, {changes: snapshot.changes, parent: snapshot.parent, id: snapshot.id, contents: snapshot.contents})
+      cb(null, {
+        changes: snapshot.changes
+      , parent: snapshot.parent
+      , id: snapshot.id
+      , contents: snapshot.contents
+      , author: snapshot.author
+      })
     })
   }.bind(this))
 }
 
-Adapter.prototype.storeSnapshot = function(snapshot, cb) {
+Adapter.prototype.storeSnapshot = function(docId, snapshot, cb) {
   var snapshotId = snapshot.id
-  this.Snapshot.create({changes: snapshot.changes, parent: snapshot.parent, contents: snapshot.contents, id: snapshot.id, document: this.documentId}, function(er) {
+  this.Snapshot.create({
+    changes: snapshot.changes
+  , parent: snapshot.parent
+  , contents: snapshot.contents
+  , id: snapshot.id
+  , document: docId
+  , author: snapshot.author
+  }, function(er) {
     if(er) return cb(er)
-    this.Document.findOne({id: this.documentId}, function(er, doc) {
+    this.Document.findOne({id: docId}, function(er, doc) {
       if(er) return cb(er)
       doc.latestSnapshot = snapshotId
       doc.save(cb)
@@ -68,22 +94,26 @@ Adapter.prototype.storeSnapshot = function(snapshot, cb) {
   }.bind(this))
 }
 
-Adapter.prototype.existsSnapshot = function(editId, cb) {
-  this.Snapshot.findOne({id: editId, document: this.documentId}, function(er, snapshot) {
+Adapter.prototype.existsSnapshot = function(docId, editId, cb) {
+  this.Snapshot.findOne({
+    id: editId
+  , document: docId
+  }, function(er, snapshot) {
     cb(null, !!snapshot)
   })
 }
 
-Adapter.prototype.getSnapshotsAfter = function(editId, cb) {
+Adapter.prototype.getSnapshotsAfter = function(docId, editId, cb) {
   var snapshots = []
-  findAfter.bind(this)(null, {id: editId})
+  findAfter.call(this, null, {id: editId})
   function findAfter(er, snapshot) {
+    if(er) return cb(er)
     if(!snapshot) return cb(null, snapshots)
     if(snapshot.id !== editId) snapshots.push(snapshot)
-    findSnapshotAfter.bind(this)(this.documentId, snapshot.id, findAfter.bind(this))
+    findSnapshotAfter.call(this, snapshot.id, findAfter.bind(this))
   }
-  function findSnapshotAfter(documentId, editId, cb) {
-    this.Snapshot.findOne({document: documentId, parent: editId}, function(er, s) {
+  function findSnapshotAfter(editId, cb) {
+    this.Snapshot.findOne({document: docId, parent: editId}, function(er, s) {
       if(er) return cb(er)
       cb(null, s)
     })

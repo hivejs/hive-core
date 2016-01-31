@@ -30,15 +30,13 @@ function setup(plugin, imports, register) {
     , broadcast = imports.broadcast
 
   var sync = {
-    getDocument: function*(){throw new Error('Models are not loaded yet')}
-  , createDocument: function*(){throw new Error('Models are not loaded yet')}
-  , documents: {}
+    documents: {}
   , createDocument: function*(type) {
       var ottype = ot.getOTType(type)
       if(!ottype) throw new Error('Specified document type is not available')
 
       var content = ottype.create()
-        , adapter = new WaterlineAdapter(null, models)
+        , adapter = new WaterlineAdapter(orm.collections)
       var doc = yield function(cb) {
         gulf.Document.create(adapter, ottype, content, cb)
       }
@@ -47,13 +45,16 @@ function setup(plugin, imports, register) {
 
       yield orm.collections.document.update({id: adapter.documentId}, {type: type})
 
-      return yield Document.findOne({id: adapter.documentId})
+      return yield Document.findOne({id: doc.id})
     }
   , getDocument: function*(docId) {
       if(this.documents[docId]) return this.documents[docId]
       var doc = yield orm.collections.document.findOne({id: docId})
         , ottype = ot.getOTType(doc.type)
-      var document = gulf.Document.load(new WaterlineAdapter(docId, orm.collections), ottype
+      var document = gulf.Document.load(
+        new WaterlineAdapter(orm.collections)
+      , ottype
+      , docId
       , function(er){
         if(er) throw er
       })
