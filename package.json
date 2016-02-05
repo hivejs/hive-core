@@ -22,7 +22,7 @@
     "umbilical": "*",
     "obj-to-argv": "*",
     "yargs": "3.x",
-    "gulf": "3.x"
+    "gulf": "4.x"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
