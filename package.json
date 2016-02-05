@@ -1,13 +1,13 @@
 {
   "name": "hive-core",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "The hive.js server core",
   "main": "index.js",
   "dependencies": {
     "through2": "2.x",
     "mux-dmx": "0.0.x",
     "duplexify": "3.x",
-    "nconf":"0.8.x",
+    "nconf": "0.8.x",
     "co": "4.x",
     "koa": "0.21.x",
     "koa-router": "5.x",
