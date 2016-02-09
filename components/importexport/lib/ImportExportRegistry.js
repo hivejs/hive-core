@@ -54,6 +54,6 @@ proto.import = function *(documentId, user, importType, data) {
   var document = yield this.orm.collections.document.findOneById(documentId)
     , availableTypes = this.imports[document.type]
   var chosenType = Object.keys(availableTypes).filter(match(importType))[0]
-  if(!chosenType) throw new Error('Unsupported import file type')
+  if(!chosenType) throw new Error('Unsupported import file type: '+importType)
   yield availableTypes[chosenType](document, user, data)
 }
