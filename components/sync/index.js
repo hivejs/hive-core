@@ -43,7 +43,7 @@ function setup(plugin, imports, register) {
       wireDocument(adapter.documentId, doc)
       this.documents[adapter.documentId] = doc
 
-      yield orm.collections.document.update({id: adapter.documentId}, {type: type})
+      yield orm.collections.document.update({id: doc.id}, {type: type})
 
       return yield orm.collections.document.findOne({id: doc.id})
     }
