@@ -45,7 +45,7 @@ function setup(plugin, imports, register) {
 
       yield orm.collections.document.update({id: adapter.documentId}, {type: type})
 
-      return yield Document.findOne({id: doc.id})
+      return yield orm.collections.document.findOne({id: doc.id})
     }
   , getDocument: function*(docId) {
       if(this.documents[docId]) return this.documents[docId]
