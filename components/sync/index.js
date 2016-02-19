@@ -40,8 +40,8 @@ function setup(plugin, imports, register) {
       var doc = yield function(cb) {
         gulf.Document.create(adapter, ottype, content, cb)
       }
-      wireDocument(adapter.documentId, doc)
-      this.documents[adapter.documentId] = doc
+      wireDocument(doc.id, doc)
+      this.documents[doc.id] = doc
 
       yield orm.collections.document.update({id: doc.id}, {type: type})
 
