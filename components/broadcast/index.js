@@ -42,6 +42,7 @@ function setup(plugin, imports, register) {
         channels[id.toString('base64')] = fn
       }
     , document: function(docId, user) {
+        if(!this.stream) throw new Error('No broadcast implementation installed')
         if(!docStreams[docId]) {
           docStreams[docId] = this.stream.createDuplexStream(new Buffer('document:'+docId, 'utf8'))
         }
@@ -87,6 +88,7 @@ function setup(plugin, imports, register) {
         return b
       }
     , sync: function(docId) {
+        if(!this.stream) throw new Error('No broadcast implementation installed')
         if(!syncStreams[docId]) {
           syncStreams[docId] = this.stream.createDuplexStream(new Buffer('sync:'+docId, 'utf8'))
         }
