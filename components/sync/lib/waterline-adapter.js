@@ -64,6 +64,7 @@ Adapter.prototype.getLatestSnapshot = function(docId, cb) {
     , id: doc.latestSnapshot
     }, function(er, snapshot) {
       if(er) return cb(er)
+      if(!snapshot) return cb(new Error('Could not findCould not find last snapshot of document '+docId))
       cb(null, {
         changes: snapshot.changes
       , parent: snapshot.parent
