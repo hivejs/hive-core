@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+var gulf = require('gulf')
+  , co = require('co')
 /**
  * Document
  */
@@ -52,6 +53,41 @@ module.exports = {
 //, id (auto-incrementing)
 //, createdAt
 //, updatedAt
-
+ 
   }
+
+  // Class methods
+, createWithSnapshot: createWithSnapshot
+, override_create: createWithSnapshot // hook for interface-rest-api
+, afterDestroy: afterDestroy
+}
+
+function* createWithSnapshot(obj) {
+  var ottype = ot.getOTType(obj.type)
+  if(!ottype) throw new Error('Specified document type is not available')
+  
+  var edit = gulf.Edit.newInitial(ottype)
+  var contents = ottype.serialize? ottype.serialize(ottype.create()) : ottype.create()
+  obj.firstSnapshot = edit.id
+  obj.latestSnapshot = edit
+  var doc = yield this.create(obj)
+   
+  var snapshot = {
+    id: edit.id
+  , document: doc.id
+  , changes: JSON.stringify(edit.changeset)
+  , contents: contents
+//, author: not given, since this not a change, but an initial snapshot
+  }
+  yield this.waterline.collections.snapshot.create(snapshot)
+  return doc
+}
+
+function afterDestroy(deletedRecord, next) {
+  co(function*() {
+    var snapshots = yield this.waterline.collections.snapshot.find({document: deletedRecord.id})
+    for(var i=0; i<snapshots.length; i++) {
+      yield snapshots[i].destroy()
+    }
+  }).then(next, next)
 }

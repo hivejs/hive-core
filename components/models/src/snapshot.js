@@ -55,4 +55,9 @@ module.exports = {
 
   }
 
+// Class methods
+
+, post: function*() {
+    this.throw(403)
+  }
 }
