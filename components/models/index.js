@@ -18,16 +18,17 @@
 var Waterline = require('waterline')
 
 module.exports = setup
-module.exports.consumes = ["orm", "hooks"]
+module.exports.consumes = ["orm", "hooks", "ot"]
 
 function setup(plugin, imports, register) {
   var hooks = imports.hooks
     , orm = imports.orm
+    , ot = imports.ot
 
   hooks.on('orm:initialize', function*(ormSettings) {
     var models = {
       user: require('./src/user')
-    , document: require('./src/document')
+    , document: require('./src/document')(ot)
     , snapshot: require('./src/snapshot')
     }
 

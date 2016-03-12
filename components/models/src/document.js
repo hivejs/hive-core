@@ -20,74 +20,76 @@ var gulf = require('gulf')
 /**
  * Document
  */
-module.exports = {
-  identity: 'document' // XXX: Is this necessary?
-, connection: 'default'
+module.exports = function(ot) {
+  return {
+    identity: 'document' // XXX: Is this necessary?
+  , connection: 'default'
 
-, attributes: {
-    // ot adapter
-    type: 'string'
+  , attributes: {
+      // ot adapter
+      type: 'string'
 
-    // hasMany snapshots
-  , snapshots: {
-      collection: 'snapshot'
-    , via: 'document' // Snapshot.document
-    }
+      // hasMany snapshots
+    , snapshots: {
+	collection: 'snapshot'
+      , via: 'document' // Snapshot.document
+      }
 
-    // hasOne latest snapshot
-  , latestSnapshot: {
-      model: 'snapshot'
-    }
+      // hasOne latest snapshot
+    , latestSnapshot: {
+	model: 'snapshot'
+      }
 
-    // hasMany authors (manyToMany through snapshot??)
-    // https://github.com/balderdashy/waterline/issues/391
-  , authors: {
-      collection: 'user'
-    , via: 'documents'
-    , dominant: true
-    }
+      // hasMany authors (manyToMany through snapshot??)
+      // https://github.com/balderdashy/waterline/issues/391
+    , authors: {
+	collection: 'user'
+      , via: 'documents'
+      , dominant: true
+      }
 
-    , settings: 'object'
+      , settings: 'object'
 
-    //Automagically created:
-//, id (auto-incrementing)
-//, createdAt
-//, updatedAt
- 
-  }
-
-  // Class methods
-, createWithSnapshot: createWithSnapshot
-, override_create: createWithSnapshot // hook for interface-rest-api
-, afterDestroy: afterDestroy
-}
-
-function* createWithSnapshot(obj) {
-  var ottype = ot.getOTType(obj.type)
-  if(!ottype) throw new Error('Specified document type is not available')
-  
-  var edit = gulf.Edit.newInitial(ottype)
-  var contents = ottype.serialize? ottype.serialize(ottype.create()) : ottype.create()
-  obj.firstSnapshot = edit.id
-  obj.latestSnapshot = edit
-  var doc = yield this.create(obj)
+      //Automagically created:
+  //, id (auto-incrementing)
+  //, createdAt
+  //, updatedAt
    
-  var snapshot = {
-    id: edit.id
-  , document: doc.id
-  , changes: JSON.stringify(edit.changeset)
-  , contents: contents
-//, author: not given, since this not a change, but an initial snapshot
-  }
-  yield this.waterline.collections.snapshot.create(snapshot)
-  return doc
-}
-
-function afterDestroy(deletedRecord, next) {
-  co(function*() {
-    var snapshots = yield this.waterline.collections.snapshot.find({document: deletedRecord.id})
-    for(var i=0; i<snapshots.length; i++) {
-      yield snapshots[i].destroy()
     }
-  }).then(next, next)
+
+    // Class methods
+  , createWithSnapshot: createWithSnapshot
+  , override_create: createWithSnapshot // hook for interface-rest-api
+  , afterDestroy: afterDestroy
+  }
+
+  function* createWithSnapshot(obj) {
+    var ottype = ot.getOTType(obj.type)
+    if(!ottype) throw new Error('Specified document type is not available')
+    
+    var edit = gulf.Edit.newInitial(ottype)
+    var contents = ottype.serialize? ottype.serialize(ottype.create()) : ottype.create()
+    obj.firstSnapshot = edit.id
+    obj.latestSnapshot = edit
+    var doc = yield this.create(obj)
+     
+    var snapshot = {
+      id: edit.id
+    , document: doc.id
+    , changes: JSON.stringify(edit.changeset)
+    , contents: contents
+  //, author: not given, since this not a change, but an initial snapshot
+    }
+    yield this.waterline.collections.snapshot.create(snapshot)
+    return doc
+  }
+
+  function afterDestroy(deletedRecord, next) {
+    co(function*() {
+      var snapshots = yield this.waterline.collections.snapshot.find({document: deletedRecord.id})
+      for(var i=0; i<snapshots.length; i++) {
+	yield snapshots[i].destroy()
+      }
+    }).then(next, next)
+  }
 }
