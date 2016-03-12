@@ -51,13 +51,14 @@ function setup(plugin, imports, register) {
       if(this.documents[docId]) return this.documents[docId]
       var doc = yield orm.collections.document.findOne({id: docId})
         , ottype = ot.getOTType(doc.type)
-      var document = gulf.Document.load(
-        new WaterlineAdapter(orm.collections)
-      , ottype
-      , docId
-      , function(er){
-        if(er) throw er
-      })
+      var document
+      yield function(cb) {
+	document = gulf.Document.load(
+	  new WaterlineAdapter(orm.collections)
+	, ottype
+	, docId
+	, cb)
+      }
       this.documents[docId] = document
       wireDocument(docId, document)
       return document
