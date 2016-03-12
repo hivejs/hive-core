@@ -48,6 +48,7 @@ function setup(plugin, imports, register) {
       return yield orm.collections.document.findOne({id: doc.id})
     }
   , getDocument: function*(docId) {
+      docId = parseInt(docId)
       if(this.documents[docId]) return this.documents[docId]
       var doc = yield orm.collections.document.findOne({id: docId})
         , ottype = ot.getOTType(doc.type)
