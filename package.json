@@ -8,6 +8,7 @@
     "mux-dmx": "0.0.x",
     "duplexify": "3.x",
     "nconf": "0.8.x",
+    "deap": "1.x",
     "co": "4.x",
     "koa": "0.21.x",
     "koa-router": "5.x",

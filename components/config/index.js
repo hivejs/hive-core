@@ -15,18 +15,16 @@
  * You should have received a copy of the GNU General Public License
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-var nconf = require('nconf');
-
+var config = require('./lib/config')
 module.exports = setup
 module.exports.provides = ["config"]
 
 function setup(plugin, imports, register) {
-  nconf
-   .overrides({})
-// .argv() // better not let argv influence this, cause we'd have to copy that to the services
-   .env('__')
-   .file('environment', { file: './config/'+process.env['NODE_ENV']+'.json' })
-   .defaults({})
+  config.file('./config/default.json')
+  if(process.env['NODE_ENV']) {
+     config.file('./config/'+process.env['NODE_ENV']+'.json')
+  }
+  config.env('hive')
 
-  register(null, {config: nconf});
+  register(null, {config: config});
 }
