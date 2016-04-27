@@ -1,6 +1,6 @@
 {
   "name": "hive-core",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "The hive.js server core",
   "main": "index.js",
   "dependencies": {
