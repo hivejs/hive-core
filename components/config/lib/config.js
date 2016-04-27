@@ -25,7 +25,15 @@ config.env = function(namespace, separator) {
   .filter((envVar) => namespace? envVar.indexOf(namespace+separator) === 0
                       : true)
   .reduce((obj, envVar) => {
-    obj[envVar] = process.env[envVar]
+    envVar
+    .split(separator)
+    .forEach((prop, i, split) => {
+      if (namespace && 0 === i) return
+      if (i+1 < split.length)
+        obj = obj[prop]
+      else
+        obj[prop] = JSON.parse(process.env[envVar])    
+    })
   }, {})
   return this.obj(data)
 }
