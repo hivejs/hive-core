@@ -41,7 +41,7 @@ function setup(plugin, imports, register) {
     connections: config.get('orm:connections'),
 
     defaults: {
-      migrate: 'safe'
+      migrate: 'alter'
     }
   }
 
