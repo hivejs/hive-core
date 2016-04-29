@@ -80,7 +80,8 @@ module.exports = function(ot) {
     , contents: contents
   //, author: not given, since this not a change, but an initial snapshot
     }
-    yield this.waterline.collections.snapshot.create(snapshot)
+    // `create` throws in MySql for example, because the doc creation triggers the creation of an empty snapshot with that id :/
+    yield this.waterline.collections.snapshot.update(snapshot) 
     return doc
   }
 
