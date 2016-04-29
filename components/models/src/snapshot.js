@@ -30,10 +30,10 @@ module.exports = {
     }
 
     // the changeset
-  , changes: 'string'
+  , changes: 'binary'
 
     // the content resulting from the changes
-  , contents: 'string'
+  , contents: 'binary'
 
     // belongsTo a document
   , document: {

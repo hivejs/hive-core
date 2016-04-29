@@ -49,7 +49,7 @@ Adapter.prototype.getFirstSnapshot = function(docId, cb) {
       , parent: snapshot.parent
       , id: snapshot.id
       , contents: snapshot.contents
-      , author: snapshot.author
+      , author: snapshot.author.toString('utf8')
       })
     })
   }.bind(this))
@@ -69,7 +69,7 @@ Adapter.prototype.getLatestSnapshot = function(docId, cb) {
         changes: snapshot.changes
       , parent: snapshot.parent
       , id: snapshot.id
-      , contents: snapshot.contents
+      , contents: snapshot.contents.toString('utf8')
       , author: snapshot.author
       })
     })
@@ -81,7 +81,7 @@ Adapter.prototype.storeSnapshot = function(docId, snapshot, cb) {
   this.Snapshot.create({
     changes: snapshot.changes
   , parent: snapshot.parent
-  , contents: snapshot.contents
+  , contents: new Buffer(snapshot.contents)
   , id: snapshot.id
   , document: docId
   , author: snapshot.author
