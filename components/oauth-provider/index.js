@@ -20,7 +20,7 @@ var path = require('path')
 
 module.exports = setup
 module.exports.consumes = ["ui","auth","authToken", "http"]
-
+module.exports.provides = ['oauth']
 function setup(plugin, imports, register) {
   var auth = imports.auth
     , authToken = imports.authToken
