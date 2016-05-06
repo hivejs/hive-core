@@ -35,6 +35,8 @@ function setup(plugin, imports, register) {
 
   // Set up koa
   var koaApp = koa()
+  var server = http.createServer(koaApp.callback())
+  koaApp.server = server
 
   // Log requests
   koaApp.use(function*(next) {
@@ -73,8 +75,7 @@ function setup(plugin, imports, register) {
 
     // add router middleware last
     koaApp.use(koaApp.router.routes())
-
-    var server = http.createServer(koaApp.callback())
+ 
     server.listen(port, function() {
       co(function*() {
         yield hooks.callHook('http:listening', server)
