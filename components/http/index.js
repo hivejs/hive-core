@@ -38,28 +38,9 @@ function setup(plugin, imports, register) {
   var server = http.createServer()
   koaApp.server = server
 
-  // Log requests
-  koaApp.use(function*(next) {
-    logger.info(this.request.method, this.request.url)
-    yield next
+  co(function*() {
+
   })
-
-  // Support conditional GET for client-side resource caching
-  koaApp.use(conditional())
-  koaApp.use(etag())
-
-  // Add caching
-  var cache = {}
-  koaApp.use(cash({
-    get: function*(key, maxAge) {
-      if(!cache[key] || +Date - cache[key].timestamp > maxAge) return
-      return cache[key].data
-    }
-  , set: function*(key, data) {
-      cache[key] = { data: data, timestamp: +Date}
-    }
-  , maxAge: 2*60*60*1000
-  }))
 
   // Use a router
   koaApp.router = router()
@@ -73,15 +54,42 @@ function setup(plugin, imports, register) {
   services.registerService('http', function(opts) {
     var port = opts.port || config.get('http:port')
 
-    // add router middleware last
-    koaApp.use(koaApp.router.routes())
-
-    server.on('request', koaApp.callback())
-    server.listen(port, function() {
-      co(function*() {
-        yield hooks.callHook('http:listening', server)
-      }).then(function() {}, function(er){ logger.error(er.stack || er) })
+    // Log requests
+    koaApp.use(function*(next) {
+      logger.debug(this.request.method, this.request.url)
+      yield next
     })
+
+    // Support conditional GET for client-side resource caching
+    koaApp.use(conditional())
+    koaApp.use(etag())
+
+    // Add caching
+    var cache = {}
+    koaApp.use(cash({
+      get: function*(key, maxAge) {
+        if(!cache[key] || +Date - cache[key].timestamp > maxAge) return
+        return cache[key].data
+      }
+    , set: function*(key, data) {
+        cache[key] = { data: data, timestamp: +Date}
+      }
+    , maxAge: 2*60*60*1000
+    }))
+ 
+    co(function*() {
+      yield hooks.callHook('http:bindMiddleware')
+
+      // add router middleware last
+      koaApp.use(koaApp.router.routes())
+
+      server.on('request', koaApp.callback())
+
+      yield (cb) => server.listen(port, cb)
+      yield hooks.callHook('http:listening', server)
+    })
+    .then(()=>{})
+    .catch((er) => logger.error(er))
   })
 
   // register provider
