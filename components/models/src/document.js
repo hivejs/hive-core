@@ -30,19 +30,19 @@ module.exports = function(ot) {
 
       // hasMany snapshots
     , snapshots: {
-	collection: 'snapshot'
+        collection: 'snapshot'
       , via: 'document' // Snapshot.document
       }
 
       // hasOne latest snapshot
     , latestSnapshot: {
-	model: 'snapshot'
+        model: 'snapshot'
       }
 
       // hasMany authors (manyToMany through snapshot??)
       // https://github.com/balderdashy/waterline/issues/391
     , authors: {
-	collection: 'user'
+        collection: 'user'
       , via: 'documents'
       , dominant: true
       }
@@ -80,7 +80,7 @@ module.exports = function(ot) {
   //, author: not given, since this not a change, but an initial snapshot
     }
     // `create` throws in MySql for example, because the doc creation triggers the creation of an empty snapshot with that id :/
-    yield this.waterline.collections.snapshot.update(snapshot) 
+    yield this.waterline.collections.snapshot.update({id: edit.id}, snapshot) 
     return doc
   }
 
