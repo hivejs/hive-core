@@ -47,7 +47,7 @@ Adapter.prototype.getFirstSnapshot = function(docId, cb) {
         changes: snapshot.changes
       , parent: snapshot.parent
       , id: snapshot.id
-      , contents: snapshot.contents
+      , contents: JSON.parse(snapshot.contents.toString('utf8'))
       , author: snapshot.author.toString('utf8')
       })
     })
@@ -68,7 +68,7 @@ Adapter.prototype.getLatestSnapshot = function(docId, cb) {
         changes: snapshot.changes
       , parent: snapshot.parent
       , id: snapshot.id
-      , contents: snapshot.contents.toString('utf8')
+      , contents: JSON.parse(snapshot.contents.toString('utf8'))
       , author: snapshot.author
       })
     })
@@ -80,7 +80,7 @@ Adapter.prototype.storeSnapshot = function(docId, snapshot, cb) {
   this.Snapshot.create({
     changes: snapshot.changes
   , parent: snapshot.parent
-  , contents: new Buffer(snapshot.contents)
+  , contents: new Buffer(JSON.stringify(snapshot.contents))
   , id: snapshot.id
   , document: docId
   , author: snapshot.author

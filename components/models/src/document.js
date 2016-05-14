@@ -76,7 +76,7 @@ module.exports = function(ot) {
       id: edit.id
     , document: doc.id
     , changes: JSON.stringify(edit.changeset)
-    , contents: contents
+    , contents: new Buffer(JSON.stringify(contents))
   //, author: not given, since this not a change, but an initial snapshot
     }
     // `create` throws in MySql for example, because the doc creation triggers the creation of an empty snapshot with that id :/
