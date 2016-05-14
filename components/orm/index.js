@@ -18,11 +18,12 @@ var Waterline = require('waterline')
   , co = require('co')
 
 module.exports = setup
-module.exports.consumes = ["config", "hooks"]
+module.exports.consumes = ["config", "services", "hooks"]
 module.exports.provides = ["orm"]
 
 function setup(plugin, imports, register) {
   var config = imports.config
+    , services = imports.services
     , hooks = imports.hooks
 
   // Create a new instance
@@ -44,7 +45,7 @@ function setup(plugin, imports, register) {
     }
   }
 
-  setImmediate(function(){
+  services.registerService('orm', function(opts){
   co(function* (){
     // defer initialization until all models have been registered
     yield hooks.callHook('orm:initialize', settings)
