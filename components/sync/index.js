@@ -46,18 +46,19 @@ function setup(plugin, imports, register) {
 
       return yield orm.collections.document.findOne({id: doc.id})
     }
-  , getDocument: function*(docId) {
-      docId = parseInt(docId)
+  , getDocument: function*(originalDocId) {
+      var docId = parseInt(originalDocId)
       if(this.documents[docId]) return this.documents[docId]
       var doc = yield orm.collections.document.findOne({id: docId})
-        , ottype = ot.getOTType(doc.type)
+      if (!doc) throw new Error('Not found: There is no document with id: "'+originalDocId+'"')
+      var ottype = ot.getOTType(doc.type)
       var document
       yield function(cb) {
-	document = gulf.Document.load(
-	  new WaterlineAdapter(orm.collections)
-	, ottype
-	, docId
-	, cb)
+        document = gulf.Document.load(
+          new WaterlineAdapter(orm.collections)
+        , ottype
+        , docId
+        , cb)
       }
       this.documents[docId] = document
       wireDocument(docId, document)
