@@ -32,6 +32,12 @@ HookRegistry.prototype.callHook = function *(hook) {
 
   var args = Array.prototype.slice.apply(arguments, [1])
   for(var i=0; i<this.hooks[hook].length; i++) {
-    yield* this.hooks[hook][i].apply(null, args)
+    try {
+      yield this.hooks[hook][i].apply(null, args)
+    }catch(e) {
+      this.logger.fatal('Call-and-yield-ing a hook caused an error:', e.stack || e)
+      this.logger.fatal('This is the code of the faulty hook:', '\n'+this.hooks[hook][i])
+      process.exit(1)
+    }
   }
 }
