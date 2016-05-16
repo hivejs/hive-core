@@ -1,19 +1,3 @@
-/**
- * hive.js
- * Copyright (C) 2013-2016 Marcel Klehr <mklehr@gmx.net>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the Mozilla Public License version 2
- * as published by the Mozilla Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the Mozilla Public License
- * along with this program.  If not, see <https://www.mozilla.org/en-US/MPL/2.0/>.
- */
 var deap = require('deap')
   , fs = require('fs')
 
@@ -31,7 +15,9 @@ var config = module.exports = {
     return val
   }
 , build: function() {
+    console.log(this.layers)
     this.data = deap.extend.apply(deap, [{}].concat(this.layers))
+    console.log(this.data)
   }
 }
 config.env = function(namespace, separator) {
@@ -43,13 +29,15 @@ config.env = function(namespace, separator) {
   .reduce((obj, envVar) => {
     envVar
     .split(separator)
-    .forEach((prop, i, split) => {
-      if (namespace && 0 === i) return
-      if (i+1 < split.length)
-        obj = obj[prop]
+    .reduce((obj, prop, i, split) => {
+      if (namespace && 0 === i) void(0)
+      else if (i+1 < split.length)
+        obj = obj[prop] = obj[prop] || {}
       else
         obj[prop] = JSON.parse(process.env[envVar])    
-    })
+      return obj
+    }, obj)
+    return obj
   }, {})
   return this.obj(data)
 }
