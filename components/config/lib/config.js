@@ -15,9 +15,7 @@ var config = module.exports = {
     return val
   }
 , build: function() {
-    console.log(this.layers)
     this.data = deap.extend.apply(deap, [{}].concat(this.layers))
-    console.log(this.data)
   }
 }
 config.env = function(namespace, separator) {
