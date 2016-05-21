@@ -43,7 +43,7 @@ module.exports = {
     , via: 'authors'
     }
 
-  , settings: 'object'
+  , settings: 'json'
 
     //Automagically created:
 //, id (auto-incrementing)

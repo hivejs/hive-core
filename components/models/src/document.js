@@ -47,7 +47,7 @@ module.exports = function(ot) {
       , dominant: true
       }
 
-      , settings: 'object'
+      , settings: 'json'
 
       //Automagically created:
   //, id (auto-incrementing)
