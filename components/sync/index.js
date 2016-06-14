@@ -17,9 +17,10 @@
 "use strict";
 var gulf = require('gulf')
   , WaterlineAdapter = require('./lib/waterline-adapter')
+  , co = require('co')
 
 module.exports = setup
-module.exports.consumes = ['orm', 'ot', 'queue', 'broadcast']
+module.exports.consumes = ['orm', 'ot', 'queue', 'broadcast', 'hooks']
 module.exports.provides = ['sync']
 
 function setup(plugin, imports, register) {
@@ -27,6 +28,7 @@ function setup(plugin, imports, register) {
     , ot = imports.ot
     , queue = imports.queue
     , broadcast = imports.broadcast
+    , hooks = imports.hooks
 
   var sync = {
     documents: {}
@@ -74,6 +76,11 @@ function setup(plugin, imports, register) {
     // send edits to other workers
     doc.on('edit', function(edit) {
       b.write(edit.pack())
+      co(function*() {
+        yield hooks.callHook('sync:edit', docId, edit)
+      })
+      .then(()=>{})
+      .catch((er) => console.error(er))
     })
     // listen to, apply and distribute edits of other workers
     b.on('readable', function() {
