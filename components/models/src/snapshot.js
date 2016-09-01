@@ -29,7 +29,7 @@ module.exports = {
     }
 
     // the changeset
-  , changes: 'binary'
+  , changes: 'text'
 
     // the content resulting from the changes
   , contents: 'text'
