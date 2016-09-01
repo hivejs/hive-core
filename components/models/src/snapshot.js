@@ -32,7 +32,7 @@ module.exports = {
   , changes: 'binary'
 
     // the content resulting from the changes
-  , contents: 'binary'
+  , contents: 'text'
 
     // belongsTo a document
   , document: {
@@ -43,7 +43,7 @@ module.exports = {
   , author: {
       model: 'user'
     }
-  
+
   , parent: {
       model: 'snapshot'
     }
