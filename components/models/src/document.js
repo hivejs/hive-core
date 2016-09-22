@@ -53,7 +53,7 @@ module.exports = function(ot) {
   //, id (auto-incrementing)
   //, createdAt
   //, updatedAt
-   
+
     }
 
     // Class methods
@@ -65,22 +65,22 @@ module.exports = function(ot) {
   function* createWithSnapshot(obj) {
     var ottype = ot.getOTType(obj.type)
     if(!ottype) throw new Error('Specified document type is not available')
-    
+
     var edit = gulf.Edit.newInitial(ottype)
     var contents = ottype.serialize? ottype.serialize(ottype.create()) : ottype.create()
     obj.firstSnapshot = edit.id
     obj.latestSnapshot = edit
     var doc = yield this.create(obj)
-     
+
     var snapshot = {
       id: edit.id
     , document: doc.id
     , changes: JSON.stringify(edit.changeset)
-    , contents: new Buffer(JSON.stringify(contents))
+    , contents: JSON.stringify(contents)
   //, author: not given, since this not a change, but an initial snapshot
     }
     // `create` throws in MySql for example, because the doc creation triggers the creation of an empty snapshot with that id :/
-    yield this.waterline.collections.snapshot.update({id: edit.id}, snapshot) 
+    yield this.waterline.collections.snapshot.update({id: edit.id}, snapshot)
     return doc
   }
 

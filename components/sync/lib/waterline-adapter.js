@@ -80,7 +80,7 @@ Adapter.prototype.storeSnapshot = function(docId, snapshot, cb) {
   this.Snapshot.create({
     changes: snapshot.changes
   , parent: snapshot.parent
-  , contents: new Buffer(JSON.stringify(snapshot.contents))
+  , contents: JSON.stringify(snapshot.contents)
   , id: snapshot.id
   , document: docId
   , author: snapshot.author
